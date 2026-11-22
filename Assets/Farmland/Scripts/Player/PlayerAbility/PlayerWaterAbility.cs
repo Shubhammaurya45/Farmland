@@ -1,9 +1,5 @@
 using UnityEngine;
 
-/// <summary>
-/// Handles the player's water ability.
-/// Manages water particle collisions and crop field interactions.
-/// </summary>
 public class PlayerWaterAbility : PlayerAbility
 {
     protected override void SubscribeToEvents()
@@ -36,9 +32,10 @@ public class PlayerWaterAbility : PlayerAbility
     protected override void StopAbilityAnimation()
     {
         if (playerAnimator != null)
-        {
             playerAnimator.StopWaterAnimation();
-        }
+
+        if (animationEvents != null)
+            animationEvents.StopWaterPartical();
     }
 
     private void WaterCollisionCallBack(Vector3[] waterPositions)

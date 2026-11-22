@@ -1,16 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using UnityEditor;
-using UnityEditor.Rendering;
 using UnityEngine;
-
-public enum CropFieldState
-{
-    Empty,
-    FullSown,
-    FullWatered,
-}
 
 public class CropField : MonoBehaviour
 {
@@ -23,13 +13,15 @@ public class CropField : MonoBehaviour
 
     [Header("Setting")]
     private List<CropTile> cropTiles = new List<CropTile>();
-    private int tilesSown = 0;
-    private int tilesWatered = 0;
+    private int tilesSown;
+    private int tilesWatered;
+    private int tilesHarvest;
     public CropFieldState fieldState;
 
     [Header("Action")]
     public static Action<CropField> onFullySown;
     public static Action<CropField> onFullyWatered;
+    public static Action<CropField> onFullyHarvest;
 
     private void Start()
     {
@@ -44,7 +36,10 @@ public class CropField : MonoBehaviour
 
         for (int i = 0; i < tileParent.childCount; i++)
         {
-            cropTiles.Add(tileParent.GetChild(i).GetComponent<CropTile>());
+            CropTile cropTile = tileParent.GetChild(i).GetComponent<CropTile>();
+
+            if (cropTile != null)
+                cropTiles.Add(cropTile);
         }
     }
 
@@ -75,7 +70,7 @@ public class CropField : MonoBehaviour
     private void FieldFullSown()
     {
         fieldState = CropFieldState.FullSown;
-        onFullySown.Invoke(this);
+        onFullySown?.Invoke(this);
     }
 
     public void WaterCollidedCallBack(Vector3[] waterPositions)
@@ -95,7 +90,6 @@ public class CropField : MonoBehaviour
 
     private void Water(CropTile cropTile)
     {
-        Debug.Log("HI");
         cropTile.Water(cropData);
         tilesWatered++;
 
@@ -106,7 +100,43 @@ public class CropField : MonoBehaviour
     private void FieldFullWatered()
     {
         fieldState = CropFieldState.FullWatered;
-        onFullyWatered.Invoke(this);
+        onFullyWatered?.Invoke(this);
+    }
+
+    public void Harvest(Transform harvestRange)
+    {
+        float harvestRadius = harvestRange.localScale.x;
+
+        for (int i = 0; i < cropTiles.Count; i++)
+        {
+            if (cropTiles[i].IsEmpty())
+                continue;
+
+            float distanceCropTileSphere = Vector3.Distance(
+                harvestRange.position,
+                cropTiles[i].transform.position
+            );
+            if (distanceCropTileSphere <= harvestRadius)
+                HarvestTile(cropTiles[i]);
+        }
+    }
+
+    private void HarvestTile(CropTile cropTile)
+    {
+        cropTile.Harvest(cropData);
+        tilesHarvest++;
+
+        if (tilesHarvest == cropTiles.Count)
+            FieldFullHarvest();
+    }
+
+    private void FieldFullHarvest()
+    {
+        tilesSown = 0;
+        tilesWatered = 0;
+        tilesHarvest = 0;
+        fieldState = CropFieldState.Empty;
+        onFullyHarvest?.Invoke(this);
     }
 
     private CropTile GetClosetCropTile(Vector3 seedPosition)

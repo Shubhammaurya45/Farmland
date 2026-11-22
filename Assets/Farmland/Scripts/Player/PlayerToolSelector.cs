@@ -2,14 +2,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum CropTool
-{
-    None,
-    Sow,
-    Water,
-    Harvest,
-}
-
 public class PlayerToolSelector : MonoBehaviour
 {
     [SerializeField]
@@ -29,23 +21,6 @@ public class PlayerToolSelector : MonoBehaviour
         SelectTool(0);
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("CropField"))
-        {
-            ShowToolPanel();
-            //currentCropField = other.GetComponent<CropField>();
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("CropField"))
-        {
-            HideToolPanel();
-        }
-    }
-
     public void ShowToolPanel()
     {
         if (toolPanel != null)
@@ -63,15 +38,15 @@ public class PlayerToolSelector : MonoBehaviour
     public void DefaultTool()
     {
         activeTool = CropTool.None;
-        for (int i = 1; i < cropTools.Count + 1; i++)
-            cropTools[i - 1].image.color = Color.white;
+        foreach (Button button in cropTools)
+            button.image.color = Color.white;
     }
 
     public void SelectTool(int cropToolIndex)
     {
         activeTool = (CropTool)cropToolIndex;
-        for (int i = 1; i < cropTools.Count + 1; i++)
-            cropTools[i - 1].image.color = i == cropToolIndex ? selectedToolColor : Color.white;
+        for (int i = 0; i < cropTools.Count; i++)
+            cropTools[i].image.color = (i + 1 == cropToolIndex) ? selectedToolColor : Color.white;
     }
 
     public bool CanSow()

@@ -4,19 +4,33 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] private MobileJoystick joystick;
-    [SerializeField] private PlayerAnimator playerAnimator;
+    [SerializeField]
+    private MobileJoystick joystick;
+
+    [SerializeField]
+    private PlayerAnimator playerAnimator;
 
     [Header("Movement")]
-    [SerializeField] private float maxSpeed = 6f;
-    [SerializeField] private float acceleration = 20f;
-    [SerializeField] private float deceleration = 25f;
-    [SerializeField] private float rotationSpeed = 12f;
-    [SerializeField] private float gravity = 0f;
+    [SerializeField]
+    private float maxSpeed = 6f;
+
+    [SerializeField]
+    private float acceleration = 20f;
+
+    [SerializeField]
+    private float deceleration = 25f;
+
+    [SerializeField]
+    private float rotationSpeed = 12f;
+
+    [SerializeField]
+    private float gravity = 0f;
 
     private CharacterController characterController;
     private Vector3 horizontalVelocity;
     private float verticalVelocity;
+
+    public CharacterController CharacterController => characterController;
 
     private void Awake()
     {
@@ -30,14 +44,11 @@ public class PlayerMovement : MonoBehaviour
 
     private void ManageMovement()
     {
-        
         Vector2 input = joystick.GetMoveInput();
         Vector3 inputDirection = new Vector3(input.x, 0f, input.y);
         Vector3 targetVelocity = inputDirection * maxSpeed;
 
-        float currentRate = inputDirection.sqrMagnitude > 0.001f
-            ? acceleration
-            : deceleration;
+        float currentRate = inputDirection.sqrMagnitude > 0.001f ? acceleration : deceleration;
 
         horizontalVelocity = Vector3.MoveTowards(
             horizontalVelocity,
@@ -45,7 +56,6 @@ public class PlayerMovement : MonoBehaviour
             currentRate * Time.deltaTime
         );
 
-     
         if (characterController.isGrounded && verticalVelocity < 0f)
         {
             verticalVelocity = -2f;

@@ -8,17 +8,13 @@ public class PlayerAbility : MonoBehaviour
     protected PlayerToolSelector playerToolSelector;
 
     protected CropField currentCropField;
-
-    /// <summary>
-    /// Flag to track if the ability is currently active.
-    /// Used to prevent animation from restarting after completion.
-    /// </summary>
-    private bool isAbilityActive = false;
+    protected PlayerAnimationEvent animationEvents;
 
     protected virtual void Start()
     {
         playerAnimator = GetComponent<PlayerAnimator>();
         playerToolSelector = GetComponent<PlayerToolSelector>();
+        animationEvents = GetComponentInChildren<PlayerAnimationEvent>();
 
         SubscribeToEvents();
     }
@@ -63,16 +59,20 @@ public class PlayerAbility : MonoBehaviour
     {
         if (other.CompareTag("CropField"))
         {
-            currentCropField = other.GetComponent<CropField>();
+            currentCropField = other.GetComponentInParent<CropField>();
+            playerToolSelector.ShowToolPanel();
         }
     }
 
     protected virtual void OnTriggerStay(Collider other)
     {
-        if (CanUseAbility())
-            PlayAbilityAnimation();
-        else
-            StopAbilityAnimation();
+        if (other.CompareTag("CropField"))
+        {
+            if (CanUseAbility())
+                PlayAbilityAnimation();
+            else
+                StopAbilityAnimation();
+        }
     }
 
     protected virtual void OnTriggerExit(Collider other)

@@ -16,7 +16,10 @@ public class PlayerSowAbility : PlayerAbility
 
     protected override bool CanUseAbility()
     {
-        return playerToolSelector != null ? playerToolSelector.CanSow() : false;
+        if (playerToolSelector == null || currentCropField == null)
+            return false;
+
+        return playerToolSelector.CanSow() && currentCropField.fieldState == CropFieldState.Empty;
     }
 
     protected override void PlayAbilityAnimation()
@@ -29,6 +32,9 @@ public class PlayerSowAbility : PlayerAbility
     {
         if (playerAnimator != null)
             playerAnimator.StopSowAnimation();
+
+        if (animationEvents != null)
+            animationEvents.StopSeedPartical();
     }
 
     private void SeedCollisionCallBack(Vector3[] seedPositions)
